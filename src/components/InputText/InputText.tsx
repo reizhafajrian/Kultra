@@ -4,9 +4,16 @@ import {color} from '../../utils/color';
 
 interface props {
   title: string;
-  styleInput: ViewStyle;
+  styleInput?: ViewStyle;
+  secureTextEntry?: boolean;
+  setChangeText: (text: string) => void;
 }
-export default function InputText({title, styleInput}: props) {
+export default function InputText({
+  title,
+  styleInput,
+  secureTextEntry = false,
+  setChangeText,
+}: props) {
   return (
     <TextInput
       style={[
@@ -19,7 +26,12 @@ export default function InputText({title, styleInput}: props) {
         },
         styleInput,
       ]}
+      onChangeText={val => {
+        setChangeText(val);
+      }}
       placeholder={title ? title : 'Type your input'}
+      secureTextEntry={secureTextEntry}
+      autoCapitalize={'none'}
     />
   );
 }

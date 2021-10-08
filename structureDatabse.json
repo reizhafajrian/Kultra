@@ -1,0 +1,28 @@
+{
+  "user": {
+    "nama": "reizha fajrian",
+    "phone": "08121189899",
+    "comment": [1, 2, 3, 4]
+  },
+  "comment": [
+    {
+      "id": "id",
+      "user_id": "id",
+      "resto": "resto",
+      "comment": "ini adalah komentar pertama",
+      "date": "2020-02-02",
+      "rating": "5"
+    }
+  ],
+  "resto": [
+    {
+      "id": "id",
+      "nama": "nama",
+      "alamat": "alamat",
+      "kategori": "kategori",
+      "rating": "rating",
+      "foto": "foto",
+      "lat": "lat"
+    }
+  ]
+}

@@ -4,11 +4,12 @@
 
 import 'react-native';
 import React from 'react';
-import App from '../App';
+import {create, act} from 'react-test-renderer';
+import Button from '../src/components/Button/Button';
 
-// Note: test renderer must be required after react-native.
-import renderer from 'react-test-renderer';
+const tree = create(<Button />);
+test('buttonPress', () => {
+  const button = tree.root.findByProps({testID: 'button'}).props;
 
-it('renders correctly', () => {
-  renderer.create(<App />);
+  button.onPress();
 });
