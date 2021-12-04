@@ -1,12 +1,13 @@
 import React from 'react';
 import {View, Text} from 'react-native';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
-import HomeScreen from '../pages/HomeScreen';
+import HomeScreen from '../pages/HomeScreen/HomeScreen';
 import SearchScreen from '../pages/SearchScreen';
 import AccountScreen from '../pages/AccountScreen';
 import SavedScreen from '../pages/SavedScreen';
 import Icon from 'react-native-vector-icons/Feather';
 import {color} from '../utils/color';
+import Food from '../pages/Food';
 
 const Tab = createMaterialBottomTabNavigator();
 const BottomTabNavigation = () => {
@@ -41,6 +42,21 @@ const BottomTabNavigation = () => {
               <Icon
                 name="search"
                 color={focused ? color.colorPrimary : color.grey}
+                size={24}
+              />
+            ),
+          };
+        }}
+      />
+      <Tab.Screen
+        name="Food"
+        component={Food}
+        options={() => {
+          return {
+            tabBarIcon: ({focused}) => (
+              <Icon
+                name="book-open"
+                color={focused === true ? color.colorPrimary : color.grey}
                 size={24}
               />
             ),

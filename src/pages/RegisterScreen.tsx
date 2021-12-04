@@ -64,9 +64,6 @@ const RegisterScreen = () => {
       });
     }
     setloading(false);
-
-    // console.log(res);
-    // console.log(name, email, password, phone);
   };
   return (
     <>
@@ -116,12 +113,21 @@ const RegisterScreen = () => {
             <View height={16} />
             <InputText title={'Nama'} setChangeText={setname} />
             <View height={16} />
-            <InputText title={'Nomor Telepon'} setChangeText={setphone} />
+            <InputText
+              title={'Nomor Telepon'}
+              setChangeText={setphone}
+ 
+            />
             <View height={16} />
-            <InputText title={'Kata Sandi'} setChangeText={setPassword} />
+            <InputText
+              title={'Kata Sandi'}
+              setChangeText={setPassword}
+              secureTextEntry={true}
+            />
             <View height={16} />
             <InputText
               title={'Konfirmasi Kata Sandi'}
+              secureTextEntry={true}
               setChangeText={setConfPassword}
             />
             <View height={36} />

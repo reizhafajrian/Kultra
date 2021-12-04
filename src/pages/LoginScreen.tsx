@@ -4,15 +4,17 @@ import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {View, Text} from 'react-native';
 // import {showMessage} from 'react-native-flash-message';
-import {IMGBG} from '../assets';
+import {IconLogo, IMGBG} from '../assets';
 import Button from '../components/Button/Button';
 import InputText from '../components/InputText/InputText';
 import Loading from '../components/Loading/Loading';
 import {RootStackAuthList} from '../routes/AuthStack';
-import {AuthContextProvider} from '../routes/Routes';
+
 import {color} from '../utils/color';
 import {signIn} from '../utils/firebase.js';
-
+import {AuthContextProvider} from '../routes/Context';
+import {showMessage} from 'react-native-flash-message';
+import {Icon} from 'react-native-paper/lib/typescript/components/Avatar/Avatar';
 
 type RegisterHomeScreen = StackNavigationProp<RootStackAuthList, 'Register'>;
 
@@ -33,18 +35,18 @@ export default function LoginScreen() {
         setloading(false);
       } catch (error) {
         setloading(false);
-        // showMessage({
-        //   message: 'Failed',
-        //   description: 'your email or password is incorrect',
-        //   type: 'danger',
-        // });
+        showMessage({
+          message: 'Failed',
+          description: 'your email or password is incorrect',
+          type: 'danger',
+        });
       }
     } else {
-      // showMessage({
-      //   message: 'Failed',
-      //   description: 'please fill all the fields',
-      //   type: 'danger',
-      // });
+      showMessage({
+        message: 'Failed',
+        description: 'please fill all the fields',
+        type: 'danger',
+      });
     }
   };
   useFocusEffect(
@@ -76,6 +78,27 @@ export default function LoginScreen() {
               top: 0,
             }}
           />
+          <View style={{flex: 1, alignItems: 'center'}}>
+            <View height={120} />
+            <IconLogo />
+            <Text
+              style={{
+                color: 'white',
+                fontSize: 32,
+                fontWeight: 'bold',
+              }}>
+              KULTRA
+            </Text>
+            <Text
+              style={{
+                color: 'white',
+                fontSize: 24,
+                fontWeight: "500",
+                textAlign: 'center',
+              }}>
+              Rekomendasi Kuliner Nusantara
+            </Text>
+          </View>
           <View
             style={{
               height: 416,
@@ -99,7 +122,11 @@ export default function LoginScreen() {
             <View style={{height: 24}} />
             <InputText title={'Email'} setChangeText={setEmail} />
             <View style={{height: 16}} />
-            <InputText title={'Password'} setChangeText={setPassword} />
+            <InputText
+              title={'Password'}
+              setChangeText={setPassword}
+              secureTextEntry={true}
+            />
             <View style={{height: 36}} />
             <Button title={'Masuk'} onPress={() => Login()} />
             <View style={{height: 36}} />

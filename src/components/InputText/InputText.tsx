@@ -6,6 +6,7 @@ interface props {
   title: string;
   styleInput?: ViewStyle;
   secureTextEntry?: boolean;
+  value?: String;
   setChangeText: (text: string) => void;
 }
 export default function InputText({
@@ -13,6 +14,7 @@ export default function InputText({
   styleInput,
   secureTextEntry = false,
   setChangeText,
+  value,
 }: props) {
   return (
     <TextInput
@@ -29,6 +31,7 @@ export default function InputText({
       onChangeText={val => {
         setChangeText(val);
       }}
+      value={value}
       placeholder={title ? title : 'Type your input'}
       secureTextEntry={secureTextEntry}
       autoCapitalize={'none'}

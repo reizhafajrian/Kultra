@@ -11,7 +11,7 @@ export type RootStackAuthList = {
 };
 export default function AuthStack() {
   return (
-    <Screen.Navigator initialRouteName={'Register'}>
+    <Screen.Navigator initialRouteName={'Login'}>
       <Screen.Screen
         name="Login"
         component={LoginScreen}

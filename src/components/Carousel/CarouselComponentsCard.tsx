@@ -12,6 +12,7 @@ const CarouselComponentsCard = ({data}) => {
   const [state, setstate] = useState(0);
   const temp = data.slice(0, 3);
 
+
   const PaginationDots = ({index}) => {
     return (
       <Pagination

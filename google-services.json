@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "771291280277",
+    "project_id": "kultra-3f248",
+    "storage_bucket": "kultra-3f248.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:771291280277:android:12f6841c27014db23d3c9c",
+        "android_client_info": {
+          "package_name": "com.kultra"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "771291280277-1m8ugl9i6d6psea5ibonijmrgiruume5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kultra",
+            "certificate_hash": "30f5081c99248f5ca22a8cdf640ace75b6bd072b"
+          }
+        },
+        {
+          "client_id": "771291280277-gu3fhf7svvqn9mb88leidod75odoha85.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAmknIMtKTeloSZ0zKV0H8q1fEblwCQZM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "771291280277-gu3fhf7svvqn9mb88leidod75odoha85.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "771291280277-8kqmb6cetklqtf0s6201qclraqfulpv1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ios.kultra"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,108 +1,62 @@
 import {NavigationContainer} from '@react-navigation/native';
-import React, {useEffect, useMemo, useReducer, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import FlashMessage from 'react-native-flash-message';
-import Loading from '../components/Loading/Loading';
-import HomeScreen from '../pages/HomeScreen';
-import {checkCurrentUser} from '../utils/firebase.js';
 import AuthStack from './AuthStack';
 import MainStack from './MainStack';
-export const AuthContextProvider = React.createContext();
 import RNLocation from 'react-native-location';
-export default function Routes() {
-  const [loading, setloading] = useState(true);
-  RNLocation.configure({
-    distanceFilter: 10.0,
-  });
-  RNLocation.requestPermission({
-    ios: 'whenInUse',
-    android: {
-      detail: 'coarse',
-    },
-  }).then(granted => {
-    if (granted) {
-      this.locationSubscription = RNLocation.subscribeToLocationUpdates(
-        locations => {
-          console.log(locations);
-          dispatch({
-            type: 'setLocation',
-            location: {
-              lat: locations[0].latitude,
-              long: locations[0].longitude,
-            },
-          });
-        },
-      );
-    }
-  });
-  const reducer = (state, action) => {
-    switch (action.type) {
-      case 'login': {
-        return {
-          ...state,
-          token: action.token,
-        };
-      }
-      case 'setLocation': {
-        return {
-          ...state,
-          location: {
-            lat: action.location.lat,
-            long: action.location.long,
-          },
-        };
-      }
-    }
-  };
-  const [state, dispatch] = useReducer(reducer, {
-    token: '',
-    location: {
-      lat: 0,
-      long: 0,
-    },
-  });
-  const checkToken = async () => {
-    try {
-      const token = await checkCurrentUser()?.getIdToken();
-      if (typeof token === 'string') {
-        dispatch({type: 'login', token});
-      }
-      setloading(false);
-    } catch (error) {
-      setloading(false);
-    }
-  };
-  useEffect(() => {
-    checkToken();
-    return () => {};
-  }, []);
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {AuthContextProvider} from './Context';
+import {Platform} from 'react-native';
+import RNAndroidLocationEnabler from 'react-native-android-location-enabler';
 
-  const MemoFunctionRoutes = useMemo(
-    () => ({
-      login: async token => {
-        dispatch({type: 'login', token: token});
+export default function Routes() {
+  const {getToken, setLocation} = React.useContext(AuthContextProvider);
+  const setLocationFunc = () => {
+    RNLocation.configure({
+      distanceFilter: 10.0,
+    });
+    RNLocation.requestPermission({
+      ios: 'whenInUse',
+      android: {
+        detail: 'coarse',
       },
-      logOut: async token => {
-        dispatch({type: 'login', token: token});
-      },
-      getLocation: () => {
-        return state.location;
-      },
-    }),
-    [state],
-  );
+    }).then(granted => {
+      if (granted) {
+        RNLocation.subscribeToLocationUpdates(locations => {
+          setLocation(locations[0].latitude, locations[0].longitude);
+        });
+      }
+    });
+  };
+
+  useEffect(() => {
+    location();
+  }, []);
+  const location = () => {
+    if (Platform.OS === 'android') {
+      RNAndroidLocationEnabler.promptForEnableLocationIfNeeded({
+        interval: 10000,
+        fastInterval: 5000,
+      })
+        .then(data => {
+          setLocationFunc();
+        })
+        .catch(err => {
+          location();
+        });
+    } else {
+      setLocationFunc();
+    }
+  };
 
   return (
     <>
-      {loading ? (
-        <Loading />
-      ) : (
-        <AuthContextProvider.Provider value={MemoFunctionRoutes}>
-          <NavigationContainer>
-            <RoutesItemMemo token={state.token} />
-          </NavigationContainer>
-          <FlashMessage position="top" />
-        </AuthContextProvider.Provider>
-      )}
+      <SafeAreaView style={{flex: 1}}>
+        <NavigationContainer>
+          <RoutesItemMemo token={getToken()} />
+        </NavigationContainer>
+        <FlashMessage position="top" />
+      </SafeAreaView>
     </>
   );
 }

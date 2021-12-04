@@ -20,6 +20,8 @@ import {
   Linking,
   Platform,
 } from 'react-native';
+// import ImageView from '../components/react-native-image-view';
+import ImageView from 'react-native-image-viewing';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IconFeather from 'react-native-vector-icons/Feather';
 import {IMGEXAMPLE} from '../assets';
@@ -29,44 +31,67 @@ import {useFocusEffect} from '@react-navigation/core';
 import {AirbnbRating, Rating, TapRatingProps} from 'react-native-ratings';
 import Button from '../components/Button/Button';
 import {
+  addBookmark,
   currentUser,
+  deleteBookMark,
+  findBookMark,
+  findDocRestobyId,
   getCommentResto,
   getDataFromRef,
   postComment,
 } from '../utils/firebase';
+import Loading from '../components/Loading/Loading';
 
 const {width} = Dimensions.get('window');
 
-const RenderItemMenu = ({item}) => {
+const RenderItemMenu = ({item, onPress}) => {
   return (
-    //create a view box shadow
-    <View
-      style={{
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 6,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-        borderRadius: 10,
-      }}>
-      <Image
+    <>
+      <TouchableOpacity
         style={{
-          width: 66,
-          height: 100,
-          resizeMode: 'cover',
+          borderRadius: 10,
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: 6,
+          },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.84,
+          elevation: 5,
           borderRadius: 10,
         }}
-        source={{uri: item}}
-      />
-    </View>
+        onPress={onPress}>
+        <Image
+          style={{
+            width: 66,
+            height: 100,
+            resizeMode: 'cover',
+            borderRadius: 10,
+          }}
+          source={{uri: item}}
+        />
+      </TouchableOpacity>
+    </>
   );
 };
 const RenderItemMenuMemo = React.memo(RenderItemMenu);
 const Menu = ({data}) => {
+  const [visible, setvisible] = useState(false);
+  const [number, setNumber] = useState(0);
+  const image = useMemo(() => {
+    const images = [];
+    for (let index = 0; index < data.length; index++) {
+      images.push({
+        uri: data[index],
+      });
+    }
+
+    return images;
+  }, []);
+  const onPress = index => {
+    setvisible(!visible);
+    setNumber(index);
+  };
   return (
     <>
       <View height={20} />
@@ -75,15 +100,26 @@ const Menu = ({data}) => {
         <View height={10} />
         <FlatList
           data={data}
-          renderItem={({item}) => <RenderItemMenuMemo item={item} />}
+          renderItem={({item, index}) => (
+            <RenderItemMenuMemo item={item} onPress={() => onPress(index)} />
+          )}
           horizontal={true}
           ItemSeparatorComponent={() => <View width={10} />}
+        />
+        <ImageView
+          visible={visible}
+          onRequestClose={() => setvisible(!visible)}
+          images={image}
+          imageIndex={number}
         />
       </View>
     </>
   );
 };
-const Header = ({item}) => {
+function Header({item}) {
+  const [bookmark, setbookmark] = useState(false);
+  const [visible, setvisible] = useState(false);
+  const [rating, setrating] = useState(item?.rate || 0);
   const openGps = (lat, lng) => {
     const scheme = Platform.select({ios: 'maps:0,0?q=', android: 'geo:0,0?q='});
     const latLng = `${lat},${lng}`;
@@ -95,13 +131,53 @@ const Header = ({item}) => {
     Linking.openURL(url);
   };
 
+  const addBookMarkItem = async () => {
+    if (bookmark) {
+      const response = await deleteBookMark(item.id);
+
+      setbookmark(!response[0]);
+    } else {
+      const res = await addBookmark(item.id);
+      setbookmark(res);
+    }
+  };
+  const getBookMark = async () => {
+    const res = await findBookMark(item.id);
+    if (res !== bookmark) {
+      setbookmark(res);
+    }
+  };
+  const image = () => {
+    const images = [
+      {
+        uri: item.item.thumbnail,
+      },
+    ];
+    return images;
+  };
+  useEffect(() => {
+    getBookMark();
+
+    if (typeof item?.rate !== 'undefined') {
+      getNewData();
+    }
+  }, []);
+  const getNewData = async () => {
+    const res = await findDocRestobyId(item.id);
+    if (res > 0) {
+      setrating(res);
+    }
+  };
+
   return (
     <>
       <View>
-        <Image
-          source={{uri: item.item.thumbnail}}
-          style={{width: width, height: 240, resizeMode: 'cover'}}
-        />
+        <TouchableOpacity onPress={() => setvisible(!visible)}>
+          <Image
+            source={{uri: item.item.thumbnail}}
+            style={{width: width, height: 240, resizeMode: 'cover'}}
+          />
+        </TouchableOpacity>
         <View
           style={{
             width: 72,
@@ -122,12 +198,11 @@ const Header = ({item}) => {
             },
             shadowOpacity: 0.23,
             shadowRadius: 2.62,
-
             elevation: 4,
           }}>
           <Icon name="star" size={24} color="#FFBA0A" />
           <View width={6} />
-          <Text>4.5</Text>
+          <Text>{rating?.toFixed(2)}</Text>
         </View>
       </View>
       <View style={{height: 16}} />
@@ -138,10 +213,24 @@ const Header = ({item}) => {
             justifyContent: 'space-between',
             alignItems: 'center',
           }}>
-          <Text style={{fontSize: 18, fontWeight: '600'}}>
-            {item.item['Nama Restoran']}
+          <Text style={{fontSize: 18, fontWeight: '600', width: '70%'}}>
+            {item.item.nama_restoran}
           </Text>
-          <IconFeather name={'bookmark'} color={color.colorPrimary} size={25} />
+          <TouchableOpacity
+            onPress={() => {
+              addBookMarkItem();
+            }}>
+            {bookmark ? (
+              <Icon name={'bookmark'} color={color.colorPrimary} size={25} />
+            ) : (
+              <IconFeather
+                name={'bookmark'}
+                color={color.colorPrimary}
+                size={25}
+                backgroundColor={'black'}
+              />
+            )}
+          </TouchableOpacity>
           {/* <Icon name={'bookmark'} color={color.colorPrimary} size={25} /> */}
         </View>
         <View style={{height: 16}} />
@@ -153,9 +242,9 @@ const Header = ({item}) => {
           <IconFeather name={'map-pin'} color={color.colorPrimary} size={25} />
           <View width={8} />
           <Text
-            onPress={() => openGps(item.item.Latitude, item.item.Longitude)}
+            onPress={() => openGps(item.item.latitude, item.item.longitude)}
             style={{fontSize: 14, color: '#6C6C6C', width: '95%'}}>
-            {item.item['Alamat']}
+            {item.item.alamat}
           </Text>
         </View>
         <View style={{height: 8}} />
@@ -167,32 +256,25 @@ const Header = ({item}) => {
           <IconFeather name={'clock'} color={color.colorPrimary} size={25} />
           <View width={8} />
           <Text style={{fontSize: 14, color: '#6C6C6C'}}>
-            {item.item['Jam Operasional']}
+            {item.item.jam_operasional}
           </Text>
         </View>
-        <View style={{height: 16}} />
+        <View style={{height: 8}} />
         <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: '#E7E7E7',
-
-            height: 30,
-            justifyContent: 'center',
-            borderRadius: 4,
-            paddingHorizontal: 10,
-
-            alignSelf: 'flex-start',
           }}>
-          <Text
-            style={{
-              fontSize: 14,
-              color: '#6C6C6C',
-            }}>
-            Indonesia
+          <IconFeather
+            name={'dollar-sign'}
+            color={color.colorPrimary}
+            size={25}
+          />
+          <View width={8} />
+          <Text style={{fontSize: 14, color: '#6C6C6C'}}>
+            {item.item.rata_rata_harga_string}
           </Text>
         </View>
-
         <Menu data={item.item.image} />
         <View style={{height: 16}} />
 
@@ -213,19 +295,23 @@ const Header = ({item}) => {
           </Text>
         </View>
       </View>
+      <ImageView
+        visible={visible}
+        onRequestClose={() => setvisible(!visible)}
+        images={image()}
+        imageIndex={0}
+      />
       <Comment item={item} />
     </>
   );
-};
+}
 
 const HeaderMemo = React.memo(Header);
 const CardReview = ({data}) => {
   const [comment, setcomment] = useState({});
-  console.log(data.ref, 'ini test');
   const getDataComment = async () => {
     const res = await getDataFromRef(data.ref);
     setcomment(res);
-    console.log(res);
   };
   useFocusEffect(
     useCallback(() => {
@@ -252,39 +338,20 @@ const CardReview = ({data}) => {
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-          <Text style={{fontSize: 14, fontWeight: '500'}}>{comment.user}</Text>
+          <Text style={{fontSize: 14, fontWeight: '500'}}>
+            {comment?.item?.user}
+          </Text>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Icon name="star" size={20} color="#FFBA0A" />
             <View width={6} />
-            <Text>{comment.rating}/5</Text>
+            <Text>{comment?.item?.rating}/5</Text>
           </View>
         </View>
         <View height={20} />
-        {/* <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#E7E7E7',
-            marginHorizontal: 20,
-            height: 30,
-            justifyContent: 'center',
-            borderRadius: 4,
-            paddingHorizontal: 10,
-
-            alignSelf: 'flex-start',
-          }}>
-          <Text
-            style={{
-              fontSize: 14,
-              color: '#6C6C6C',
-            }}>
-            Indonesia
-          </Text>
-        </View> */}
         <View height={10} />
         <View style={{marginHorizontal: 20}}>
           <Text style={{fontSize: 14, fontWeight: '400', color: '#6C6C6C'}}>
-            {comment.comment}
+            {comment?.item?.comment}
           </Text>
         </View>
       </View>
@@ -314,8 +381,7 @@ const CardReviewMemo = React.memo(CardReview);
 
 const DetailRestaurantContext = React.createContext();
 const DetailRestaurant = ({route}) => {
-  const [item] = useState(route.params.dataItem);
-  console.log(item);
+  const [item, setItem] = useState(route.params.dataItem);
   const reducer = (state, action) => {
     switch (action.type) {
       case 'SHOWMODAL':
@@ -328,14 +394,22 @@ const DetailRestaurant = ({route}) => {
           ...state,
           star: action.star,
         };
+      case 'LOADING':
+        return {
+          ...state,
+          loading: action.loading,
+        };
     }
   };
 
-  const [state, dispatch] = useReducer(reducer, {modal: 0, star: 0});
+  const [state, dispatch] = useReducer(reducer, {
+    modal: 0,
+    star: 0,
+    loading: false,
+  });
   const memoFunction = useMemo(
     () => ({
       showModalFunc: modal => {
-        console.log(modal);
         dispatch({type: 'SHOWMODAL', modal: modal});
       },
       getModal: () => {
@@ -347,32 +421,38 @@ const DetailRestaurant = ({route}) => {
       getAllState: () => {
         return state;
       },
+      setloading: loading => {
+        dispatch({type: 'LOADING', loading: loading});
+      },
     }),
     [state],
   );
 
   return (
-    <DetailRestaurantContext.Provider value={memoFunction}>
-      <SafeAreaView>
-        <RenderItemDataMemo item={item} />
-
-        {state.modal === 1 && <BottomSheetMemo item={item} />}
-      </SafeAreaView>
-    </DetailRestaurantContext.Provider>
+    <>
+      {state.loading ? (
+        <Loading />
+      ) : (
+        <DetailRestaurantContext.Provider value={memoFunction}>
+          <SafeAreaView>
+            <RenderItemDataMemo item={item} />
+            {state.modal === 1 && <BottomSheetMemo item={item} />}
+          </SafeAreaView>
+        </DetailRestaurantContext.Provider>
+      )}
+    </>
   );
 };
 const RenderItemData = ({item}) => {
   const [state, setstate] = useState([]);
   const getComment = async () => {
     const res = await getCommentResto(item.id);
-
     setstate(res);
   };
 
   useFocusEffect(
     useCallback(() => {
       getComment();
-
       return () => {};
     }, []),
   );
@@ -380,11 +460,16 @@ const RenderItemData = ({item}) => {
   return (
     <>
       <FlatList
-        data={state}
+        data={state.length > 0 ? state : []}
         renderItem={({item, index}) => <CardReviewMemo data={item} />}
         contentContainerStyle={{
           minHeight: '100%',
         }}
+        keyExtractor={(item, index) => index.toString()}
+        key={item.id}
+        initialNumToRender={1}
+        extraData={state}
+        maxToRenderPerBatch={1}
         ListHeaderComponent={() => <HeaderMemo item={item} />}
         showsVerticalScrollIndicator={false}
       />
@@ -393,13 +478,12 @@ const RenderItemData = ({item}) => {
 };
 const RenderItemDataMemo = React.memo(RenderItemData);
 const BottomSheetComponent = ({item}) => {
-  console.log('bottomshet');
-  // ref
-
   const [rating, setrating] = useState(5);
   const [comment, setcomment] = useState('');
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const {showModalFunc, getModal} = useContext(DetailRestaurantContext);
+  const {showModalFunc, getModal, setloading} = useContext(
+    DetailRestaurantContext,
+  );
   // variables
   const snapPoints = useMemo(() => ['0%', '50%'], []);
 
@@ -410,15 +494,22 @@ const BottomSheetComponent = ({item}) => {
   }, []);
 
   const postComments = async () => {
-    const uid = currentUser();
-    const data = {
-      rating: rating,
-      comment: comment,
-      resto_id: item.id,
-      uid: uid?.uid,
-      user: uid?.email,
-    };
-    const res = await postComment(item.id, data);
+    if (comment.length > 0) {
+      setloading(true);
+      const uid = currentUser();
+      const data = {
+        rating: rating,
+        comment: comment,
+        resto_id: item.id,
+        uid: uid?.uid,
+        user: uid?.email,
+      };
+      await postComment(item.id, data);
+      showModalFunc(0);
+      setTimeout(() => {
+        setloading(false);
+      }, 1000);
+    }
   };
   useFocusEffect(
     useCallback(() => {
@@ -427,6 +518,9 @@ const BottomSheetComponent = ({item}) => {
       } else {
         bottomSheetRef.current?.expand();
       }
+      return () => {
+        bottomSheetRef.current?.collapse();
+      };
     }, [getModal()]),
   );
 
@@ -464,9 +558,6 @@ const BottomSheetComponent = ({item}) => {
           />
         </View>
         <View style={{height: 20}} />
-        {/* <Text style={{fontWeight: '400', fontSize: 16}}>
-          Apa keunggulan restoran ini?
-        </Text> */}
         <View style={{height: 20}} />
         <Text
           style={{
