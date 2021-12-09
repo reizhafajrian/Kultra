@@ -369,7 +369,7 @@ const BottomSheetComponent = ({index}) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const {showModalFunction} = useContext(ShowModal);
   // variables
-  const snapPoints = useMemo(() => ['0%', '60%'], []);
+  const snapPoints = useMemo(() => ['0%', '60%', '100%'], []);
   const {setRating, setRange, setPrice, setTime, getState} =
     useContext(ShowModal);
   const handleSheetChanges = useCallback(
@@ -385,7 +385,7 @@ const BottomSheetComponent = ({index}) => {
       if (index === 0) {
         bottomSheetRef.current?.collapse();
       } else {
-        bottomSheetRef.current?.expand();
+        bottomSheetRef.current?.snapTo(1);
       }
     }, [index]),
   );
@@ -450,7 +450,6 @@ const BottomSheetComponent = ({index}) => {
           data={itemData.items}
           horizontal={true}
           ItemSeparatorComponent={() => <View style={{width: 10}} />}
-          scrollEnabled={false}
           renderItem={({item, index}) => (
             <RenderItem item={item} title={itemData.title} />
           )}
@@ -492,7 +491,7 @@ const BottomSheetComponent = ({index}) => {
       <View style={{flex: 1}}>
         <FlatList
           data={data}
-          scrollEnabled={false}
+          scrollEnabled={true}
           renderItem={({item, index}) => <RenderItemBottom itemData={item} />}
           ListFooterComponent={() => {
             return (

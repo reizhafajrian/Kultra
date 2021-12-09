@@ -91,7 +91,7 @@ const Header = () => {
           <Text
             onPress={() => {
               navigation.navigate('AllItem', {
-                title: 'Rekomendasi restoran terbaik',
+                title: 'Rekomendasi restoran terdekat',
                 data: data,
               });
             }}
