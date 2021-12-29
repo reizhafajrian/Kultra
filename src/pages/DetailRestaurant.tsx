@@ -143,6 +143,7 @@ function Header({item}) {
   };
   const getBookMark = async () => {
     const res = await findBookMark(item.id);
+    console.log(res,"res");
     if (res !== bookmark) {
       setbookmark(res);
     }

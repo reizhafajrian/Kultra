@@ -128,6 +128,11 @@ const SearchScreen = ({navigation}) => {
           ...state,
           time: action.time,
         };
+      case 'FASILITAS':
+        return {
+          ...state,
+          fasilitas: action.fasilitas,
+        };
     }
   };
 
@@ -138,6 +143,7 @@ const SearchScreen = ({navigation}) => {
     range: '',
     price: '',
     time: '',
+    fasilitas: '',
     temp: [],
   });
   const showModal = useMemo(
@@ -160,6 +166,9 @@ const SearchScreen = ({navigation}) => {
       },
       setTime: time => {
         dispatch({type: 'TIME', time: time});
+      },
+      setFasilitas: fasilitas => {
+        dispatch({type: 'FASILITAS', fasilitas: fasilitas});
       },
       getState: () => {
         return state;
@@ -217,6 +226,13 @@ const SearchScreen = ({navigation}) => {
         }
       });
     }
+    if (state.fasilitas !== '') {
+      console.log("masuk")
+      temp = temp.filter(item => {
+        return item.fasilitas === state.fasilitas;
+      });
+      console.log(temp,"temo")
+    }
 
     return setdata({
       temp: datas.temp,
@@ -267,7 +283,7 @@ const SearchScreen = ({navigation}) => {
       getDataFilter();
     }
     return () => {};
-  }, [state.rating, state.range, state.price, state.time]);
+  }, [state.rating, state.range, state.price, state.time,state.fasilitas]);
 
   const RenderItem = ({item, index}) => {
     const [dataItem] = useState({
@@ -369,8 +385,8 @@ const BottomSheetComponent = ({index}) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const {showModalFunction} = useContext(ShowModal);
   // variables
-  const snapPoints = useMemo(() => ['0%', '60%', '100%'], []);
-  const {setRating, setRange, setPrice, setTime, getState} =
+  const snapPoints = useMemo(() => ['0%', '80%', '100%'], []);
+  const {setRating, setRange, setPrice, setTime, getState, setFasilitas} =
     useContext(ShowModal);
   const handleSheetChanges = useCallback(
     (id: number) => {
@@ -405,13 +421,17 @@ const BottomSheetComponent = ({index}) => {
         case 'Jam':
           setTime(itemLocal);
           break;
+        case 'Fasilitas':
+          setFasilitas(itemLocal);
+          break;
       }
     };
     const borderOn =
       getState().rating === item ||
       getState().range === item ||
       getState().price === item ||
-      getState().time === item;
+      getState().time === item ||
+      getState().fasilitas === item;
     useEffect(() => {
       return () => {};
     }, []);
@@ -475,12 +495,17 @@ const BottomSheetComponent = ({index}) => {
       title: 'Jam',
       items: ['24 jam', '08.00-18.00', '>18.00'],
     },
+    {
+      title: 'Fasilitas',
+      items: ['1', '2', '3', '4', '5'],
+    },
   ];
   const clearFilter = () => {
     setRating(0);
     setTime('');
     setPrice('');
     setRange('');
+    setFasilitas('');
   };
   return (
     <BottomSheet

@@ -284,7 +284,7 @@ export const deleteBookMark = async id => {
     .collection('users')
     .doc(currentUser().uid)
     .collection('bookmark')
-    .where('path', '==', `resto/${id}`)
+    .where('path', '==', `restaurant/${id}`)
     .get()
     .then(res =>
       res.docs.map(doc => {
@@ -305,7 +305,7 @@ export const findBookMark = id => {
     .collection('users')
     .doc(currentUser().uid)
     .collection('bookmark')
-    .where('path', '==', `resto/${id}`)
+    .where('path', '==', `restaurant/${id}`)
     .get()
     .then(res => {
       if (res.empty) {
