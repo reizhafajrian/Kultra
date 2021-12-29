@@ -87,7 +87,7 @@ const Header = () => {
       </Animated.View>
       <Animated.View>
         <View style={style.containerResto}>
-          <Text style={style.textArticle}>Rekomendasi restoran terbaik</Text>
+          <Text style={style.textArticle}>Rekomendasi restoran terdekat</Text>
           <Text
             onPress={() => {
               navigation.navigate('AllItem', {
