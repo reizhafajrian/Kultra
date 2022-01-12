@@ -56,8 +56,8 @@ export const getResto = async temp => {
   if (temp !== null) {
     res = await firestore()
       .collection('restaurant')
-      .limit(26)
-      .startAfter(temp)
+      // .limit(26)
+      // .startAfter(temp)
       .get()
       .then(res => {
         return res.docs.map(async doc => {
@@ -77,7 +77,7 @@ export const getResto = async temp => {
   if (temp === null) {
     res = await firestore()
       .collection('restaurant')
-      .limit(26)
+
       .get()
       .then(res =>
         res.docs.map(doc => {
@@ -103,6 +103,8 @@ export const getResto = async temp => {
         rate += test.item.rating;
       }
       res[i].rate = rate / res[i].comment.length;
+    } else {
+      res[i].rate = 0;
     }
   }
 
@@ -212,7 +214,7 @@ export const nearbyResto = async data => {
   const radiusInM = 10 * 1000;
   const bounds = geohashQueryBounds(center, radiusInM);
   const promises = [];
-  console.log(data)
+  console.log(data);
   for (const b of bounds) {
     const q = firestore()
       .collection('restaurant')
@@ -261,7 +263,7 @@ export const nearbyResto = async data => {
       temp[key].rate = rate / temp[key].comment.length;
     }
   }
-  console.log(temp,"nearby");
+  console.log(temp, 'nearby');
   return temp;
 };
 
@@ -623,13 +625,13 @@ export const calculateScore = async data => {
     let score = {
       ...temp[key],
       range_calculated: Math.pow((temp[key].score_jarak / 5) * 5 - 5, 2),
-      price_calculate: Math.pow((temp[key].score_harga / 1) * 5 - 25, 2),
-      time_calculate: Math.pow((temp[key].score_jam / 5) * 3 - 3, 2),
+      price_calculate: Math.pow((temp[key].score_harga / 5) * 5 - 5, 2),
+      time_calculate: Math.pow((temp[key].score_jam / 5) * 3 - 3, 3),
       fasilitas_calculate: Math.pow((temp[key].score_fasilitas / 5) * 4 - 4, 2),
     };
     let score_negatif = {
-      range_calculated: Math.pow((temp[key].score_jarak / 5) * 5 - 0.2, 2),
-      price_calculate: Math.pow((temp[key].score_harga / 1) * 5 - 5, 2),
+      range_calculated: Math.pow((temp[key].score_jarak / 5) * 5 - 1, 2),
+      price_calculate: Math.pow((temp[key].score_harga / 5) * 5 - 1, 2),
       time_calculate: Math.pow((temp[key].score_jam / 5) * 3 - 0.6, 2),
       fasilitas_calculate: Math.pow(
         (temp[key].score_fasilitas / 5) * 4 - 0.8,

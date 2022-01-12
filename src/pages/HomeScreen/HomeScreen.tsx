@@ -60,12 +60,16 @@ export default function HomeScreen() {
     setname(getCurrenData);
   };
   const getData = async () => {
+    console.log('dipanggul');
     const fill = datas.temp.length === 0 ? null : datas.temp;
     const response = await getResto(fill).then(res => res);
-
+    const sorting = response.sort((a, b) => {
+      return b.rate - a.rate;
+    });
+    console.log(response, 'ini tester d');
     setdata({
       temp: response[response.length - 1]?.last,
-      data: datas.data.concat(response),
+      data: datas.data.concat(sorting),
     });
   };
   const [loading, setloading] = useState(false);
@@ -87,6 +91,7 @@ export default function HomeScreen() {
     return (
       <TouchableOpacity
         onPress={() => {
+          console.log(dataItem);
           navigation.navigate('DetailRestaurant', {dataItem});
         }}
         style={styles.ItemButton}>
