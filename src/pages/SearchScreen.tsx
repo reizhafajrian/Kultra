@@ -59,7 +59,7 @@ const Header = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
         }}>
-        {/* <View
+        <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -80,7 +80,7 @@ const Header = () => {
             placeholder="Cari nama restoran"
             onChangeText={val => searchKeyword(val)}
           />
-        </View> */}
+        </View>
         <Icon
           name="sliders"
           onPress={() => showModalFunction(1)}
@@ -227,11 +227,11 @@ const SearchScreen = ({navigation}) => {
       });
     }
     if (state.fasilitas !== '') {
-      console.log("masuk")
+      console.log('masuk');
       temp = temp.filter(item => {
         return item.fasilitas === state.fasilitas;
       });
-      console.log(temp,"temo")
+      // console.log(temp,"temo")
     }
 
     return setdata({
@@ -265,7 +265,7 @@ const SearchScreen = ({navigation}) => {
   const context = useContext(AuthContextProvider);
   const getData = async () => {
     const res = await calculateScore(context.getLocation());
-    console.log(res);
+
     setdata({
       temp: res,
       data: res,
@@ -283,7 +283,7 @@ const SearchScreen = ({navigation}) => {
       getDataFilter();
     }
     return () => {};
-  }, [state.rating, state.range, state.price, state.time,state.fasilitas]);
+  }, [state.rating, state.range, state.price, state.time, state.fasilitas]);
 
   const RenderItem = ({item, index}) => {
     const [dataItem] = useState({
@@ -479,10 +479,6 @@ const BottomSheetComponent = ({index}) => {
   };
 
   const data = [
-    {
-      title: 'Rating',
-      items: [5, 4, 3, 2, 1],
-    },
     {
       title: 'Jarak',
       items: ['10km', '20km', '40km'],

@@ -234,8 +234,9 @@ export const nearbyResto = async data => {
           const lat = doc.get('latitude');
           const lng = doc.get('longitude');
           const distanceInKm = distanceBetween([lat, lng], center);
-          const distanceInM = distanceInKm * 1000;
-          if (distanceInM <= radiusInM) {
+          doc.data().distance = distanceInKm;
+
+          if (distanceInKm <= 8) {
             matchingDocs.push(doc);
           }
         }
@@ -252,6 +253,7 @@ export const nearbyResto = async data => {
         return response;
       });
     });
+
   for (const key in temp) {
     temp[key].comment = await getCommentResto(temp[key].id);
     if (temp[key].comment.length > 0) {
@@ -263,7 +265,8 @@ export const nearbyResto = async data => {
       temp[key].rate = rate / temp[key].comment.length;
     }
   }
-  console.log(temp, 'nearby');
+  const test=temp.sort((a, b) => a.item.distance - b.item.distance);
+  console.log(test,"ni temp")
   return temp;
 };
 
